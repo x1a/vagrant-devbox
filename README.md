@@ -21,7 +21,7 @@ Installed software:
 
 ## Installation
 * Change box IP in Vagrantfile if necessary
-* Add hostname devbox.vmdev.com to hosts file
+* Add hostname devbox.vmdev.com to your hosts file
 * vagrant up
 * Open devbox.vmdev.com in browser
 
