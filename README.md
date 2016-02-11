@@ -15,21 +15,7 @@ Installed software:
     * xdebug
 * Nginx
 * Mysql
-* Nodejs
-* Gulp
-    * gulp-autoprefixer
-    * gulp-concat-css
-    * gulp-cssnano
-    * gulp-rename
-    * gulp-sass
-    * gulp-less
-    * gulp-compass
-    * gulp-stylus
-    * gulp-coffee
-    * gulp-jade
-    * gulp-uncss
-    * gulp-uglify
-    * del
+* Nodejs, NPM
 * Git, Subversion, screen, mc
 * GoLang
 

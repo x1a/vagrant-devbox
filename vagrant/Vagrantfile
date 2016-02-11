@@ -3,7 +3,7 @@ Vagrant.configure(2) do |config|
 
 config.vm.box = "ubuntu/wily64"
 config.vm.hostname = "testbox"
-config.vm.network "private_network", ip: "192.168.2.112"
+config.vm.network "private_network", ip: "192.168.2.114"
 config.vm.synced_folder "../", "/sites/test"
 
 config.vm.provider "virtualbox" do |vb|
@@ -62,20 +62,20 @@ config.vm.provision "shell", inline: <<-SHELL
     apt-get install -y nodejs
 
     # gulp
-    npm install -g gulp
-    npm install -g gulp-autoprefixer
-    npm install -g gulp-concat-css
-    npm install -g gulp-cssnano
-    npm install -g gulp-rename
-    npm install -g gulp-sass
-    npm install -g gulp-less
-    npm install -g gulp-compass
-    npm install -g gulp-stylus
-    npm install -g gulp-coffee
-    npm install -g gulp-jade
-    npm install -g gulp-uncss
-    npm install -g gulp-uglify
-    npm install -g del
+    #npm install -g gulp
+    #npm install -g gulp-autoprefixer
+    #npm install -g gulp-concat-css
+    #npm install -g gulp-cssnano
+    #npm install -g gulp-rename
+    #npm install -g gulp-sass
+    #npm install -g gulp-less
+    #npm install -g gulp-compass
+    #npm install -g gulp-stylus
+    #npm install -g gulp-coffee
+    #npm install -g gulp-jade
+    #npm install -g gulp-uncss
+    #npm install -g gulp-uglify
+    #npm install -g del
 
     # tools
     apt-get install -y subversion
