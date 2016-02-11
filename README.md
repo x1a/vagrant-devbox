@@ -15,7 +15,7 @@ Installed software:
     * xdebug
 * Nginx
 * Mysql
-* Nodejs, NPM
+* Nodejs-4.X, NPM
 * Git, Subversion, screen, mc
 * GoLang
 
