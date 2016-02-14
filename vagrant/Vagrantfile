@@ -15,7 +15,8 @@ end
 config.vm.provision "shell", inline: <<-SHELL
 
     export DEBIAN_FRONTEND=noninteractive
-    VFDIR="/sites/test/vagrant/files"
+    #VFDIR="/sites/test/vagrant/files"
+    VFDIR="/vagrant/files"
 
     # install ssh keys
     cp ${VFDIR}/dot/ssh/id_rsa.pub ~vagrant/.ssh/id_rsa.pub
@@ -33,10 +34,8 @@ config.vm.provision "shell", inline: <<-SHELL
 
     # php-fpm
     apt-get install -y php5-fpm
-    for F in `ls -l ${VFDIR}/php/pool.d/*.conf|awk 'BEGIN{ORS=" "}{print $9}'`; do
-        cp ${VFDIR}/php/pool.d/`basename $F` /etc/php5/fpm/pool.d/`basename $F`
-    done
 
+    # php extensions
     apt-get install -y php5-mysqlnd
     apt-get install -y php5-curl
     apt-get install -y php5-intl
@@ -47,10 +46,6 @@ config.vm.provision "shell", inline: <<-SHELL
 
     # nginx
     apt-get install -y nginx
-    for F in `ls -l ${VFDIR}/nginx/*.conf|awk 'BEGIN{ORS=" "}{print $9}'`; do
-        cp ${VFDIR}/nginx/`basename $F` /etc/nginx/sites-available
-        ln -s /etc/nginx/sites-available/`basename $F` /etc/nginx/sites-enabled/`basename $F`
-    done
 
     # mysql
     # echo "mysql-server mysql-server/root_password password 123" | sudo debconf-set-selections
@@ -84,15 +79,67 @@ config.vm.provision "shell", inline: <<-SHELL
     apt-get install -y mc
     apt-get install -y golang-go
 
+    # Rub shell scripts
+    echo
+    echo "Executing shell scripts ..."
+    for F in `ls -l ${VFDIR}/shell/*.sh|awk 'BEGIN{ORS=" "}{print $9}'`; do
+        echo $F
+        bash ${VFDIR}/shell/`basename $F`
+    done
+    echo done
+
+    # Config for PHP-FPM pools
+    echo
+    echo "Installing PHP-FPM pools config ..."
+    for F in `ls -l ${VFDIR}/php/pool.d/*.conf|awk 'BEGIN{ORS=" "}{print $9}'`; do
+        FNAME=`basename $F`
+        echo "cp ${VFDIR}/php/pool.d/${FNAME} /etc/php5/fpm/pool.d/${FNAME}"
+        cp ${VFDIR}/php/pool.d/${FNAME} /etc/php5/fpm/pool.d/${FNAME}
+    done
+    echo done
+
+    # Virtual hosts
+    echo
+    echo -n "Installing nginx virtual hosts ..."
+    for F in `ls -l ${VFDIR}/nginx/*.conf|awk 'BEGIN{ORS=" "}{print $9}'`; do
+        FNAME=`basename $F`
+        echo -n " ${FNAME}"
+        cp ${VFDIR}/nginx/${FNAME} /etc/nginx/sites-available
+        ln -s /etc/nginx/sites-available/${FNAME} /etc/nginx/sites-enabled/${FNAME}
+    done
+    echo
+    echo done
+
+    # run sql scripts to create users, databases, etc.
+    echo
+    echo "Executing SQL scripts ..."
+    for F in `ls -l ${VFDIR}/mysql/*.sql|awk 'BEGIN{ORS=" "}{print $9}'`; do
+        FNAME=`basename $F`
+        echo "mysql < ${VFDIR}/mysql/${FNAME}"
+        mysql < ${VFDIR}/mysql/${FNAME}
+    done
+
+    # run sql scripts for databases
+    echo
+    echo "Executing SQL scripts for databases ..."
+    for D in `ls -l ${VFDIR}/mysql|grep '^d'|awk 'BEGIN{ORS=" "}{print $9}'`; do
+        DBNAME=`basename $D`
+        for F in `ls -l ${VFDIR}/mysql/${DBNAME}/*.sql|awk 'BEGIN{ORS=" "}{print $9}'`; do
+            FNAME=`basename $F`
+            echo "mysql $DBNAME < ${VFDIR}/mysql/${DBNAME}/${FNAME}"
+            mysql $DBNAME < ${VFDIR}/mysql/${DBNAME}/${FNAME}
+        done
+    done
+
     # restart services
+    echo
+    echo -n "Restarting services ... "
     service php5-fpm restart
     service nginx restart
     service mysql restart
 
-    # exec sql scripts
-    for F in `ls -l ${VFDIR}/mysql/*.sql|awk 'BEGIN{ORS=" "}{print $9}'`; do
-        mysql < ${VFDIR}/mysql/`basename $F`
-    done
+    echo done
+    echo
 
     id
     echo All done.
