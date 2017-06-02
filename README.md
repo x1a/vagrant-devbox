@@ -1,21 +1,21 @@
 # My Vagrant config for web development
 
-* Box: ubuntu/wily64
+* Box: ubuntu/xenial64
 * Provisioner: SHELL
 
 Installed software:
 
-* PHP-5.6
-    * mysqlnd
+* PHP-7.0
     * curl
     * intl
-    * imagick
+    * mbstring
     * mcrypt
+    * imagick
     * apcu
     * xdebug
 * Nginx
 * Mysql
-* Nodejs-4.X, NPM
+* Nodejs-6.X, NPM
 * Git, Subversion, screen, mc
 * GoLang
 
@@ -36,5 +36,5 @@ You can add more stuff before first vagrant up to setup your environment (execut
 * Put configs for additional PHP-FPM pools to vagrant/files/php/pool.d
 
 ## Requirements
-Tested on Vagrant-1.8.1, Virtualbox-5.0.14
+Tested on Vagrant-1.9.5, Virtualbox-5.1.22
 
