@@ -47,6 +47,9 @@ config.vm.provision "shell", inline: <<-SHELL
     apt install -y php7.0-intl
     apt install -y php7.0-mcrypt
     apt install -y php7.0-mbstring
+    apt install -y php-mysql
+    #apt install -y php-redis
+    apt install -y php-xml
     apt install -y php-apcu
     apt install -y php-imagick
     apt install -y php-xdebug
