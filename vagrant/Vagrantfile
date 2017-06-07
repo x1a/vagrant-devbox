@@ -54,9 +54,6 @@ config.vm.provision "shell", inline: <<-SHELL
     apt install -y php-imagick
     apt install -y php-xdebug
 
-    # composer
-    apt install -y composer
-
     # nginx
     apt install -y nginx
 
