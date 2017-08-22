@@ -36,6 +36,21 @@ config.vm.provision "shell", inline: <<-SHELL
     chown ${VUSER}:${VGROUP} /home/${VUSER}/.ssh/id_rsa /home/${VUSER}/.ssh/id_rsa.pub
     cat /home/${VUSER}/.ssh/id_rsa.pub >> /home/${VUSER}/.ssh/authorized_keys
     echo done
+    echo
+
+    echo Installing dot files ...
+    for F in `ls -l ${VFDIR}/dot/.*|awk 'BEGIN{ORS=" "}{print $9}'`; do
+        FNAME=`basename $F`
+
+        if [ -f ${VFDIR}/dot/${FNAME} ]; then
+            echo "cp ${VFDIR}/dot/${FNAME} /home/${VUSER}/${FNAME}"
+            cp ${VFDIR}/dot/${FNAME} /home/${VUSER}/${FNAME}
+            chown ${VUSER}:${VGROUP} /home/${VUSER}/${FNAME}
+            chmod 644 /home/${VUSER}/${FNAME}
+        fi
+    done
+
+    echo done
 
     apt -y update
     apt -y upgrade
