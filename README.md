@@ -29,9 +29,9 @@ Installed software:
 You can add more stuff before first vagrant up to setup your environment (executed once)
 * Put bash executable scripts to vagrant/files/shell to prepare your environment
 * Put SQL scripts to vagrant/files/mysql to create users, databases, etc.
-(they will be run as mysql < /vagrant/files/mysql/anyscript.sql)
+(they will be run as mysql &lt; /vagrant/files/mysql/anyscript.sql)
 * Put SQL scripts for databases to vagrant/files/mysql/&lt;dbname&gt;
-(they will be run as mysql <dbname> < /vagrant/files/mysql/&lt;dbname&gt;/anyscript.sql, use it e.g. for importing databases)
+(they will be run as mysql &lt;dbname&gt; &lt; /vagrant/files/mysql/&lt;dbname&gt;/anyscript.sql, use it e.g. for importing databases)
 * Put additional configs for nginx virtual hosts to vagrant/files/nginx
 * Put configs for additional PHP-FPM pools to vagrant/files/php/pool.d
 
