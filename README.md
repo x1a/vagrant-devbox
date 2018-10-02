@@ -5,25 +5,24 @@
 
 Installed software:
 
-* PHP-7.0
+* PHP-7.2
     * curl
     * intl
     * mbstring
-    * mcrypt
     * imagick
     * apcu
     * xdebug
 * Nginx
 * Mysql
-* Nodejs-6.X, NPM
-* Git, Subversion, screen, mc
+* Nodejs-9.X, NPM
+* Git, Subversion, mc
 * GoLang
 
 ## Installation
-* Change box IP in Vagrantfile if necessary
+* Change your box IP in Vagrantfile if necessary
 * Add hostname devbox.vmdev.com to your hosts file
 * vagrant up
-* Open devbox.vmdev.com in browser
+* Open devbox.vmdev.com in a browser
 
 ## More options
 You can add more stuff before first vagrant up to setup your environment (executed once)
@@ -36,5 +35,5 @@ You can add more stuff before first vagrant up to setup your environment (execut
 * Put configs for additional PHP-FPM pools to vagrant/files/php/pool.d
 
 ## Requirements
-Tested on Vagrant-1.9.5, Virtualbox-5.1.22
+Tested on Vagrant-2.0.1, Virtualbox-5.1.30
 
