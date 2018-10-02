@@ -9,63 +9,64 @@ config.vm.synced_folder "../", "/sites/test"
 config.vm.provider "virtualbox" do |vb|
     #vb.gui = true
     vb.name = "vagrant_devbox"
-    vb.memory = 1024
-    vb.cpus = 1
+    vb.memory = 4096
+    vb.cpus = 2
 end
 
 config.vm.provision "shell", inline: <<-SHELL
 
     export DEBIAN_FRONTEND=noninteractive
-    #VFDIR="/sites/test/vagrant/files"
+    PRJROOT="/sites/test"
     VFDIR="/vagrant/files"
     VUSER="ubuntu"
-    VGROUP="ubuntu"
 
-    # install ssh keys
-    echo Installing SSH keys ...
-
-    if [ ! -d /home/${VUSER}/.ssh ]
-    then
-        mkdir /home/${VUSER}/.ssh
+    if [ -f /usr/share/zoneinfo/CET ]; then
+        rm -f /etc/localtime
+        ln -s /usr/share/zoneinfo/CET /etc/localtime
     fi
 
-    cp ${VFDIR}/dot/ssh/id_rsa.pub /home/${VUSER}/.ssh/id_rsa.pub
-    cp ${VFDIR}/dot/ssh/id_rsa /home/${VUSER}/.ssh/id_rsa
-    chmod 400 /home/${VUSER}/.ssh/id_rsa
-    chmod 444 /home/${VUSER}/.ssh/id_rsa.pub
-    chown ${VUSER}:${VGROUP} /home/${VUSER}/.ssh/id_rsa /home/${VUSER}/.ssh/id_rsa.pub
-    cat /home/${VUSER}/.ssh/id_rsa.pub >> /home/${VUSER}/.ssh/authorized_keys
-    echo done
-    echo
+    if id -u vagrant >/dev/null 2>&1; then
+        VUSER="vagrant"
+    fi
 
-    echo Installing dot files ...
+    ### installing dot files
+    echo "Installing dot files ... "
+
     for F in `ls -l ${VFDIR}/dot/.*|awk 'BEGIN{ORS=" "}{print $9}'`; do
         FNAME=`basename $F`
 
         if [ -f ${VFDIR}/dot/${FNAME} ]; then
             echo "cp ${VFDIR}/dot/${FNAME} /home/${VUSER}/${FNAME}"
             cp ${VFDIR}/dot/${FNAME} /home/${VUSER}/${FNAME}
-            chown ${VUSER}:${VGROUP} /home/${VUSER}/${FNAME}
+            echo chown ${VUSER}:${VUSER} /home/${VUSER}/${FNAME}
+            chown ${VUSER}:${VUSER} /home/${VUSER}/${FNAME}
+            echo chmod 644 /home/${VUSER}/${FNAME}
             chmod 644 /home/${VUSER}/${FNAME}
         fi
     done
 
     echo done
+    echo
 
+    ### installing packages
     apt -y update
     apt -y upgrade
 
     # php
-    apt install -y php7.0
+    add-apt-repository -y ppa:ondrej/php
+    apt-get update -y
 
-    apt install -y php7.0-curl
-    apt install -y php7.0-intl
-    apt install -y php7.0-mcrypt
-    apt install -y php7.0-mbstring
-    apt install -y php-mysql
-    #apt install -y php-redis
-    apt install -y php-xml
+    apt install -y php7.2
+
+    apt install -y php7.2-fpm
+    apt install -y php7.2-curl
+    apt install -y php7.2-intl
+    apt install -y php7.2-mbstring
+    apt install -y php7.2-mysql
+    apt install -y php7.2-xml
+    apt install -y php7.2-opcache
     apt install -y php-apcu
+    apt install -y php-apcu-bc
     apt install -y php-imagick
     apt install -y php-xdebug
 
@@ -76,44 +77,41 @@ config.vm.provision "shell", inline: <<-SHELL
     apt install -qq -y mysql-server
 
     # nodejs & npm
-
-    #apt install -y nodejs
-    #apt install -y nodejs-legacy
-    #apt install -y npm
-
-    curl -sL https://deb.nodesource.com/setup_6.x | sudo bash -
+    curl -sL https://deb.nodesource.com/setup_9.x | sudo bash -
     apt install -y nodejs
 
+    # install gulp
+    npm install gulp-cli -g
 
     # tools
-    apt install -y subversion
     apt install -y git
     apt install -y mc
     apt install -y golang-go
 
     # Run shell scripts
     echo
-    echo "Executing shell scripts ..."
-    ###for F in `ls -l ${VFDIR}/shell/*.sh|awk 'BEGIN{ORS=" "}{print $9}'`; do
-    ###    echo $F
-    ###    bash ${VFDIR}/shell/`basename $F`
-    ###done
+    echo "Executing shell scripts ... "
+    for F in `ls -l ${VFDIR}/shell/*.sh|awk 'BEGIN{ORS=" "}{print $9}'`; do
+        echo $F
+        bash ${VFDIR}/shell/`basename $F`
+    done
     echo done
+    echo
 
     # Config for PHP-FPM pools
-    echo Installing PHP-FPM pools ...
+    echo "Installing PHP-FPM pools ... "
 
     for F in `ls -l ${VFDIR}/php/pool.d/*.conf|awk 'BEGIN{ORS=" "}{print $9}'`; do
         FNAME=`basename $F`
-        echo "cp ${VFDIR}/php/pool.d/${FNAME} /etc/php5/fpm/pool.d/${FNAME}"
-        cp ${VFDIR}/php/pool.d/${FNAME} /etc/php/7.0/fpm/pool.d/${FNAME}
+        echo $FNAME
+        cat ${VFDIR}/php/pool.d/${FNAME} | sed s/%vuser%/${VUSER}/ >/etc/php/7.2/fpm/pool.d/${FNAME}
     done
 
     echo done
     echo
 
     # Virtual hosts
-    echo Installing virtual hosts ...
+    echo "Installing virtual hosts ... "
 
     for F in `ls -l ${VFDIR}/nginx/*.conf|awk 'BEGIN{ORS=" "}{print $9}'`; do
         FNAME=`basename $F`
@@ -125,9 +123,15 @@ config.vm.provision "shell", inline: <<-SHELL
     echo done
     echo
 
+    # Restart mysql
+    echo "Restarting MySQL ... "
+    service mysql restart
+    echo done
+    echo
+
     # run sql scripts to create users, databases, etc.
     echo
-    echo "Executing SQL scripts ..."
+    echo "Executing SQL scripts ... "
 
     for F in `ls -l ${VFDIR}/mysql/*.sql | awk 'BEGIN{ORS=" "}{print $9}'`; do
         FNAME=`basename $F`
@@ -135,9 +139,11 @@ config.vm.provision "shell", inline: <<-SHELL
         mysql < ${VFDIR}/mysql/${FNAME}
     done
 
-    # run sql scripts for databases
+    echo done
     echo
-    echo "Executing SQL scripts for databases ..."
+
+    # run sql scripts for databases
+    echo "Executing SQL scripts for databases ... "
     for D in `ls -l ${VFDIR}/mysql|grep '^d'|awk 'BEGIN{ORS=" "}{print $9}'`; do
         DBNAME=`basename $D`
         for F in `ls -l ${VFDIR}/mysql/${DBNAME}/*.sql|awk 'BEGIN{ORS=" "}{print $9}'`; do
@@ -150,11 +156,13 @@ config.vm.provision "shell", inline: <<-SHELL
     echo done
     echo
 
+    echo 127.0.0.1 devbox.vmdev.com >> /etc/hosts
+
     # Restart services
     echo
     echo -n "Restarting services ... "
 
-    service php7.0-fpm restart
+    service php7.2-fpm restart
     service nginx restart
     service mysql restart
 
@@ -163,6 +171,7 @@ config.vm.provision "shell", inline: <<-SHELL
 
     id
     echo All done.
+
 SHELL
 
 end
