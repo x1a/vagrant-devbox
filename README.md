@@ -22,6 +22,7 @@ Installed software:
 * Change your box IP in Vagrantfile if necessary
 * Add hostname devbox.vmdev.com to your hosts file
 * vagrant up
+* vagrant reload
 * Open devbox.vmdev.com in a browser
 
 ## More options
