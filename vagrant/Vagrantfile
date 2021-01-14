@@ -56,17 +56,15 @@ config.vm.provision "shell", inline: <<-SHELL
     add-apt-repository -y ppa:ondrej/php
     apt-get update -y
 
-    apt install -y php7.2
+    apt install -y php7.3
 
-    apt install -y php7.2-fpm
-    apt install -y php7.2-curl
-    apt install -y php7.2-intl
-    apt install -y php7.2-mbstring
-    apt install -y php7.2-mysql
-    apt install -y php7.2-xml
-    apt install -y php7.2-opcache
-    apt install -y php-apcu
-    apt install -y php-apcu-bc
+    apt install -y php7.3-fpm
+    apt install -y php7.3-curl
+    apt install -y php7.3-intl
+    apt install -y php7.3-mbstring
+    apt install -y php7.3-mysql
+    apt install -y php7.3-xml
+    apt install -y php7.3-opcache
     apt install -y php-imagick
     apt install -y php-xdebug
 
@@ -104,7 +102,7 @@ config.vm.provision "shell", inline: <<-SHELL
     for F in `ls -l ${VFDIR}/php/pool.d/*.conf|awk 'BEGIN{ORS=" "}{print $9}'`; do
         FNAME=`basename $F`
         echo $FNAME
-        cat ${VFDIR}/php/pool.d/${FNAME} | sed s/%vuser%/${VUSER}/ >/etc/php/7.2/fpm/pool.d/${FNAME}
+        cat ${VFDIR}/php/pool.d/${FNAME} | sed s/%vuser%/${VUSER}/ >/etc/php/7.3/fpm/pool.d/${FNAME}
     done
 
     echo done
@@ -162,7 +160,7 @@ config.vm.provision "shell", inline: <<-SHELL
     echo
     echo -n "Restarting services ... "
 
-    service php7.2-fpm restart
+    service php7.3-fpm restart
     service nginx restart
     service mysql restart
 
